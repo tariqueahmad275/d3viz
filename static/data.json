@@ -1,0 +1,26 @@
+[
+    {
+        "Hospital Name": "City Health Clinic",
+        "City": "New York",
+        "Number of Beds": 120,
+        "Specialization": "General"
+    },
+    {
+        "Hospital Name": "Mountain View Hospital",
+        "City": "Denver",
+        "Number of Beds": 200,
+        "Specialization": "Cardiology"
+    },
+    {
+        "Hospital Name": "Seaside Medical Center",
+        "City": "Los Angeles",
+        "Number of Beds": 300,
+        "Specialization": "Neurology"
+    },
+    {
+        "Hospital Name": "Green Valley Hospital",
+        "City": "Seattle",
+        "Number of Beds": 180,
+        "Specialization": "Pediatrics"
+    }
+]

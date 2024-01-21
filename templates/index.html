@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hospital Dashboard</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div>
+        Filter by City: 
+        <select id="cityFilter">
+            <option value="All">All</option>
+            <!-- Options will be populated by JavaScript -->
+        </select>
+    </div>
+    <div id="bar-chart"></div>
+
+    <script>
+        // Load the data
+        d3.json("{{ url_for('static', filename='data.json') }}").then(function(allData) {
+            // Populate filter dropdown
+            let cities = [...new Set(allData.map(h => h.City))];
+            d3.select("#cityFilter")
+                .selectAll('option.city')
+                .data(cities).enter()
+                .append('option')
+                .classed('city', true)
+                .text(d => d);
+
+            // Function to update the chart
+            function updateChart(city) {
+                let filteredData = city === "All" ? allData : allData.filter(h => h.City === city);
+
+                // Clear the existing chart
+                d3.select("#bar-chart").selectAll("*").remove();
+
+                // Set the dimensions and margins of the graph
+                const margin = {top: 30, right: 30, bottom: 70, left: 60},
+                    width = 460 - margin.left - margin.right,
+                    height = 400 - margin.top - margin.bottom;
+
+                // Append the svg object to the div called 'bar-chart'
+                const svg = d3.select("#bar-chart")
+                    .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                // X axis
+                const x = d3.scaleBand()
+                    .range([0, width])
+                    .domain(filteredData.map(d => d["Hospital Name"]))
+                    .padding(0.2);
+                svg.append("g")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(x))
+                    .selectAll("text")
+                        .attr("transform", "translate(-10,0)rotate(-45)")
+                        .style("text-anchor", "end");
+
+                // Add Y axis
+                const y = d3.scaleLinear()
+                    .domain([0, d3.max(filteredData, d => d["Number of Beds"])])
+                    .range([height, 0]);
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                // Bars
+                svg.selectAll("mybar")
+                    .data(filteredData)
+                    .join("rect")
+                        .attr("x", d => x(d["Hospital Name"]))
+                        .attr("y", d => y(d["Number of Beds"]))
+                        .attr("width", x.bandwidth())
+                        .attr("height", d => height - y(d["Number of Beds"]))
+                        .attr("fill", "#69b3a2");
+            }
+
+            // Initial chart rendering
+            updateChart("All");
+
+            // Event listener for the dropdown
+            d3.select("#cityFilter").on("change", function() {
+                updateChart(this.value);
+            });
+        }).catch(function(error) {
+            console.log(error);
+        });
+    </script>
+</body>
+</html>
